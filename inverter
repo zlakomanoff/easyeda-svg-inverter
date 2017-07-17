@@ -1,0 +1,31 @@
+#!/usr/bin/env php
+<?php
+
+$black = '#000000';
+$white = '#FFFFFF';
+$fileIn = 'pcb.svg';
+$fileSuffix = '_inverted';
+
+if (!empty($argv[1])) {
+    $fileIn = $argv[1];
+}
+
+if (empty($argv[2])) {
+    $fileOut = preg_replace('/\.svg/i', '', $fileIn) . $fileSuffix . '.svg';
+} else {
+    $fileOut = $argv[2];
+}
+
+if (file_exists($fileOut)) {
+    unlink($fileOut);
+}
+
+$file = file_get_contents($fileIn);
+$xml = new SimpleXMLElement($file);
+
+$xml->style[0] = str_replace($black, '{black}', $xml->style[0]);
+$xml->style[0] = str_replace($white, $black, $xml->style[0]);
+$xml->style[0] = str_replace('{black}', $white, $xml->style[0]);
+$xml->g->rect->attributes()['fill'] = $black;
+
+$xml->asXML($fileOut);
